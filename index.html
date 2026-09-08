@@ -1,0 +1,837 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 NFL Team Draft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* Syracuse University palette — values from designsystem.syr.edu design tokens.
+     Primary:  #F76900 orange · #000E54 blue · #FFFFFF white
+     Tints:    blue-primary 90/80/70/40/20, orange-primary 50/10
+     Secondary:#2B72D7 blue-light */
+  :root {
+    --navy:       #000E54;   /* su-blue-primary-100 */
+    --navy-90:    #1A2665;   /* su-blue-primary-90  */
+    --navy-80:    #333E76;   /* su-blue-primary-80  */
+    --navy-70:    #4D5687;   /* su-blue-primary-70  */
+    --navy-40:    #999FBB;   /* su-blue-primary-40  */
+    --navy-20:    #CCCFDD;   /* su-blue-primary-20  */
+    --orange:     #F76900;   /* su-orange-primary   */
+    --orange-50:  #FBB480;   /* su-orange-primary-50 */
+    --cream:      #FEF0E6;   /* su-orange-primary-10 */
+    --blue-light: #2B72D7;   /* su-blue-light       */
+
+    --ground:  var(--navy);
+    --surface: var(--navy-90);
+    --raised:  var(--navy-80);
+    --rule:    var(--navy-80);
+    --text:    var(--navy-20);
+    --dim:     var(--navy-40);
+    --plate:   var(--cream);
+    --ink:     var(--navy);
+
+    --o1: #F76900;
+    --o2: #2B72D7;
+    --o3: #FBB480;
+    --o4: #FFFFFF;
+
+    --cond: "Barlow Condensed", "Oswald", "Arial Narrow", system-ui, sans-serif;
+    --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--ground); color: var(--text);
+    font-family: var(--body); font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button { font: inherit; color: inherit; cursor: pointer; }
+  input, select { font: inherit; }
+  :focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 20px 20px 60px; }
+
+  .masthead {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    padding-bottom: 12px; border-bottom: 2px solid var(--orange);
+  }
+  .masthead h1 {
+    font-family: var(--cond); font-weight: 700; font-size: 26px;
+    letter-spacing: .01em; margin: 0; color: #FFFFFF;
+  }
+  .masthead .meta { font-family: var(--cond); font-size: 17px; font-weight: 500; color: var(--dim); }
+
+  /* ---------- setup ---------- */
+
+  .setup { max-width: 660px; margin: 44px auto; }
+  .setup h2 {
+    font-family: var(--cond); font-weight: 600; font-size: 22px;
+    color: #FFFFFF; margin: 0 0 6px;
+  }
+  .setup p.lede { color: var(--dim); margin: 0 0 24px; line-height: 1.55; }
+
+  .keeper-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 9px; }
+  .keeper-row input, .keeper-row select {
+    width: 100%; background: var(--surface);
+    border: 1px solid var(--rule); border-radius: 3px; color: #FFFFFF;
+    padding: 10px 12px;
+    font-family: var(--cond); font-size: 18px; font-weight: 600;
+  }
+  .keeper-row select { -webkit-appearance: none; appearance: none; }
+  .keeper-row option { background: var(--surface); }
+
+  .warn {
+    color: var(--orange); font-size: 13.5px; line-height: 1.55;
+    margin: 14px 0; padding-left: 12px; border-left: 2px solid var(--orange);
+  }
+
+  .btn {
+    background: var(--orange); border: none; border-radius: 3px; color: var(--navy);
+    font-family: var(--cond); font-weight: 700; font-size: 19px; padding: 12px 26px;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn[disabled] { opacity: .4; cursor: default; filter: none; }
+
+  .btn-ghost {
+    background: none; border: 1px solid var(--rule); border-radius: 3px; color: var(--text);
+    font-family: var(--cond); font-weight: 600; font-size: 15px; padding: 7px 14px;
+  }
+  .btn-ghost:hover { background: var(--surface); border-color: var(--navy-40); }
+  .btn-ghost[disabled] { opacity: .35; cursor: default; }
+  .btn-ghost[disabled]:hover { background: none; border-color: var(--rule); }
+
+  /* ---------- published rules ---------- */
+
+  .rules {
+    margin-top: 42px; padding-top: 20px; border-top: 1px solid var(--rule);
+    display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 34px;
+    align-items: start;
+  }
+  .setup .rules { grid-template-columns: 1fr; gap: 22px; margin-top: 26px; }
+
+  .rules h3 {
+    font-family: var(--cond); font-size: 18px; font-weight: 600;
+    color: #FFFFFF; margin: 0 0 12px;
+  }
+
+  .op-row {
+    display: grid; grid-template-columns: 20px 1fr auto; gap: 11px;
+    align-items: baseline; padding: 6px 0 6px 9px;
+    border-left: 3px solid var(--c, var(--rule)); margin-bottom: 3px;
+  }
+  .op-row .pos { font-family: var(--cond); font-size: 16px; font-weight: 700; color: var(--dim); }
+  .op-row .who { font-family: var(--cond); font-size: 18px; font-weight: 600; color: #FFFFFF; }
+  .op-row .who small {
+    display: block; font-family: var(--body); font-size: 12.5px;
+    font-weight: 400; color: var(--dim); margin-top: 1px;
+  }
+  .op-row .why {
+    font-family: var(--cond); font-size: 16px; color: var(--dim);
+    font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap;
+  }
+  .op-row .why small { display: block; font-size: 12.5px; font-family: var(--body); }
+  .op-row.tied .why small { color: var(--orange); }
+
+  .rules-prose p { margin: 0 0 13px; line-height: 1.6; max-width: 62ch; color: var(--text); }
+  .rules-prose p:last-child { margin-bottom: 0; }
+  .rules-prose b { color: #FFFFFF; font-weight: 600; }
+
+  /* ---------- clock ---------- */
+
+  .clock {
+    display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+    margin: 18px 0 24px; padding: 18px 22px; background: var(--surface);
+    border-left: 5px solid var(--pick, var(--orange)); border-radius: 2px;
+  }
+  .clock-label { font-family: var(--cond); font-size: 15px; font-weight: 600; color: var(--dim); line-height: 1.2; }
+  .clock-name { font-family: var(--cond); font-size: 46px; font-weight: 700; line-height: .95; color: #FFFFFF; margin-top: 2px; }
+  .clock-where { margin-left: auto; text-align: right; font-family: var(--cond); }
+  .clock-where .big { font-size: 30px; font-weight: 700; color: var(--orange); line-height: 1; }
+  .clock-where .sub { font-size: 14px; color: var(--dim); margin-top: 4px; }
+  .snake-note { font-size: 12.5px; color: var(--dim); font-family: var(--body); margin-top: 3px; }
+
+  /* ---------- columns ---------- */
+
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.05fr); gap: 30px; align-items: start; }
+
+  .panel-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding-bottom: 8px; margin-bottom: 12px; border-bottom: 1px solid var(--rule);
+  }
+  .panel-head h2 { font-family: var(--cond); font-size: 19px; font-weight: 600; color: #FFFFFF; margin: 0; }
+  .panel-head .count { font-family: var(--cond); color: var(--dim); font-size: 17px; }
+
+  .toolbar { display: flex; gap: 8px; margin-bottom: 14px; }
+  .search {
+    flex: 1; background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 3px; color: #FFFFFF; padding: 9px 12px;
+  }
+  .search::placeholder { color: var(--dim); }
+
+  .seg { display: flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+  .seg button {
+    background: none; border: none; padding: 8px 13px;
+    font-family: var(--cond); font-weight: 600; font-size: 15px; color: var(--dim);
+  }
+  .seg button[aria-pressed="true"] { background: var(--raised); color: #FFFFFF; }
+
+  .group-label {
+    font-family: var(--cond); font-size: 14px; font-weight: 600; color: var(--dim);
+    margin: 16px 0 6px; padding-bottom: 4px; border-bottom: 1px dashed var(--rule);
+  }
+  .group-label:first-child { margin-top: 0; }
+
+  .plate {
+    display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 12px;
+    width: 100%; text-align: left; background: var(--plate); color: var(--ink);
+    border: none; border-radius: 2px; padding: 9px 13px; margin-bottom: 5px;
+  }
+  .plate:hover, .plate.is-target { box-shadow: inset 0 0 0 2px var(--orange); }
+  .plate .ou { font-family: var(--cond); font-size: 21px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .plate .name { font-family: var(--cond); font-size: 20px; font-weight: 600; line-height: 1.1; }
+  .plate .div { font-size: 11.5px; color: var(--navy-70); letter-spacing: .02em; }
+  .plate .last { font-family: var(--cond); font-size: 15px; color: var(--navy-70); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .empty-pool { padding: 30px 4px; color: var(--dim); line-height: 1.6; }
+
+  /* ---------- board ---------- */
+
+  .board { display: grid; grid-template-columns: 34px repeat(4, minmax(0,1fr)); gap: 4px; }
+  .board .rnd {
+    font-family: var(--cond); font-size: 13px; font-weight: 600; color: var(--dim);
+    display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 5px; font-variant-numeric: tabular-nums;
+  }
+  .board .col-head { padding: 0 0 9px; border-bottom: 2px solid var(--head, var(--rule)); margin-bottom: 5px; }
+  .board .col-head .who {
+    font-family: var(--cond); font-size: 18px; font-weight: 700; color: #FFFFFF;
+    line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .board .col-head .proj { font-family: var(--cond); font-size: 13px; color: var(--dim); font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+  .slot {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 2px;
+    min-height: 42px; padding: 6px 8px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .slot.filled { background: var(--raised); border-color: transparent; border-left: 3px solid var(--c, var(--rule)); }
+  .slot.keeper { background: transparent; border-color: transparent; border-left: 3px solid var(--c, var(--rule)); }
+  .slot.oncl { border-color: var(--orange); border-style: dashed; }
+  .slot .t {
+    font-family: var(--cond); font-size: 16px; font-weight: 600; color: #FFFFFF;
+    line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .slot.keeper .t { color: var(--dim); }
+  .slot .n { font-family: var(--cond); font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; margin-top: 1px; }
+
+  @keyframes land { from { background: var(--orange); } to { background: var(--raised); } }
+  .slot.land { animation: land .5s ease-out; }
+  @media (prefers-reduced-motion: reduce) { .slot.land { animation: none; } }
+
+  /* ---------- done ---------- */
+
+  .done { margin: 18px 0 26px; padding: 18px 22px; background: var(--surface); border-left: 5px solid var(--orange); border-radius: 2px; }
+  .done h2 { font-family: var(--cond); font-size: 28px; font-weight: 700; color: #FFFFFF; margin: 0 0 4px; }
+  .done p { margin: 0 0 16px; color: var(--dim); line-height: 1.55; }
+
+  .export {
+    width: 100%; height: 150px; background: var(--ground);
+    border: 1px solid var(--rule); border-radius: 3px; color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.5; padding: 11px; resize: vertical;
+  }
+  .row-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+    background: var(--orange); color: var(--navy);
+    font-family: var(--cond); font-weight: 700; font-size: 16px;
+    padding: 9px 18px; border-radius: 3px;
+    opacity: 0; pointer-events: none; transition: opacity .18s;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 880px) {
+    .cols { grid-template-columns: 1fr; gap: 34px; }
+    .rules { grid-template-columns: 1fr; gap: 24px; }
+    .clock-name { font-size: 38px; }
+    .clock-where { margin-left: 0; text-align: left; width: 100%; }
+    .keeper-row { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="masthead">
+    <h1>2026 NFL Team Draft</h1>
+    <div class="meta" id="meta"></div>
+  </div>
+  <div id="app"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ou   = consensus preseason win total
+  // over = American price on the over; breaks ties between teams on the same line
+  // last = 2025 regular season wins
+  var TEAMS = [
+    { n:"Bills",      d:"AFC East",  ou:10.5, over:-130, last:12 },
+    { n:"Patriots",   d:"AFC East",  ou:10.5, over: 120, last:14 },
+    { n:"Jets",       d:"AFC East",  ou: 5.5, over:-110, last: 3 },
+    { n:"Dolphins",   d:"AFC East",  ou: 4.5, over: 155, last: 7 },
+
+    { n:"Ravens",     d:"AFC North", ou:11.5, over: 130, last: 8 },
+    { n:"Bengals",    d:"AFC North", ou: 9.5, over:-160, last: 6 },
+    { n:"Steelers",   d:"AFC North", ou: 8.5, over: 100, last:10 },
+    { n:"Browns",     d:"AFC North", ou: 5.5, over:-125, last: 5 },
+
+    { n:"Texans",     d:"AFC South", ou: 9.5, over:-155, last:12 },
+    { n:"Jaguars",    d:"AFC South", ou: 9.5, over: 120, last:13 },
+    { n:"Colts",      d:"AFC South", ou: 7.5, over:-145, last: 8 },
+    { n:"Titans",     d:"AFC South", ou: 6.5, over: 115, last: 3 },
+
+    { n:"Chiefs",     d:"AFC West",  ou:10.5, over: 120, last: 6 },
+    { n:"Chargers",   d:"AFC West",  ou:10.5, over: 135, last:11 },
+    { n:"Broncos",    d:"AFC West",  ou: 9.5, over:-125, last:14 },
+    { n:"Raiders",    d:"AFC West",  ou: 5.5, over:-135, last: 3 },
+
+    { n:"Eagles",     d:"NFC East",  ou:10.5, over: 115, last:11 },
+    { n:"Cowboys",    d:"NFC East",  ou: 9.5, over:-110, last: 7 },
+    { n:"Commanders", d:"NFC East",  ou: 7.5, over: 110, last: 5 },
+    { n:"Giants",     d:"NFC East",  ou: 7.5, over:-102, last: 4 },
+
+    { n:"Lions",      d:"NFC North", ou:10.5, over:-130, last: 9 },
+    { n:"Bears",      d:"NFC North", ou: 9.5, over: 105, last:11 },
+    { n:"Packers",    d:"NFC North", ou: 9.5, over:-130, last: 9 },
+    { n:"Vikings",    d:"NFC North", ou: 8.5, over:-125, last: 9 },
+
+    { n:"Buccaneers", d:"NFC South", ou: 8.5, over: 115, last: 8 },
+    { n:"Falcons",    d:"NFC South", ou: 7.5, over: 125, last: 8 },
+    { n:"Panthers",   d:"NFC South", ou: 7.5, over: 125, last: 8 },
+    { n:"Saints",     d:"NFC South", ou: 7.5, over:-125, last: 6 },
+
+    { n:"Rams",       d:"NFC West",  ou:11.5, over:-140, last:12 },
+    { n:"49ers",      d:"NFC West",  ou:10.5, over: 115, last:12 },
+    { n:"Seahawks",   d:"NFC West",  ou:10.5, over:-120, last:14 },
+    { n:"Cardinals",  d:"NFC West",  ou: 3.5, over:-155, last: 3 }
+  ];
+
+  var DIV_ORDER = ["AFC East","AFC North","AFC South","AFC West",
+                   "NFC East","NFC North","NFC South","NFC West"];
+  var COLORS = ["var(--o1)","var(--o2)","var(--o3)","var(--o4)"];
+  var DRAFT_ROUNDS = 7;   // 4 keepers + 28 drafted = 32
+
+  var state = {
+    phase: "setup",
+    entries: [                                   // any order; the draft order is computed
+      { name:"Casey",  keeper:"Seahawks"   },
+      { name:"Greggy", keeper:"Eagles"     },
+      { name:"Joey",   keeper:"Jets"       },
+      { name:"Willy",  keeper:"Commanders" }
+    ],
+    owners: [],
+    picks: [],
+    sort: "ou",
+    query: ""
+  };
+
+  var app = document.getElementById("app");
+  var metaEl = document.getElementById("meta");
+  var toastEl = document.getElementById("toast");
+  var justPicked = -1;
+
+  function team(n) { return TEAMS.find(function (t) { return t.n === n; }); }
+
+  /** American odds -> implied probability that a team clears its posted line. */
+  function impliedOver(o) { return o < 0 ? (-o) / ((-o) + 100) : 100 / (o + 100); }
+  function pct(o) { return (impliedOver(o) * 100).toFixed(1) + "%"; }
+  function priceLabel(o) { return (o > 0 ? "+" : "") + o; }
+
+  /**
+   * Weakest keeper picks first. Two teams on the same posted line are not the
+   * same team, so ties fall to the price: the cheaper over is the team the
+   * market rates lower, and that owner picks earlier.
+   */
+  function computeOrder(entries) {
+    return entries.slice().sort(function (a, b) {
+      var ta = team(a.keeper), tb = team(b.keeper);
+      if (!ta || !tb) return 0;
+      return ta.ou - tb.ou || impliedOver(ta.over) - impliedOver(tb.over);
+    });
+  }
+
+  // ---------- persistence (best effort) ----------
+
+  function save() {
+    if (!window.storage) return;
+    try {
+      window.storage.set("nfldraft:2026:v2", JSON.stringify({
+        phase: state.phase, entries: state.entries,
+        owners: state.owners, picks: state.picks
+      }));
+    } catch (e) { /* the board still works, it just won't survive a reload */ }
+  }
+
+  function restore() {
+    if (!window.storage) { render(); return; }
+    window.storage.get("nfldraft:2026:v2").then(function (r) {
+      if (r && r.value) {
+        var s = JSON.parse(r.value);
+        if (s && s.picks) {
+          state.phase = s.phase; state.entries = s.entries;
+          state.owners = s.owners; state.picks = s.picks;
+        }
+      }
+      render();
+    }).catch(function () { render(); });
+  }
+
+  // ---------- draft logic ----------
+
+  /**
+   * i is a 0-based drafted pick; keepers are not part of the snake, so round 0
+   * runs forward and the weakest keeper genuinely opens the draft.
+   */
+  function ownerForPick(i) {
+    var r = Math.floor(i / 4), slot = i % 4;
+    return (r % 2 === 0) ? slot : (3 - slot);
+  }
+
+  function taken() {
+    var s = {};
+    state.owners.forEach(function (o) { s[o.keeper] = true; });
+    state.picks.forEach(function (p) { s[p.team] = true; });
+    return s;
+  }
+
+  function available() {
+    var t = taken();
+    return TEAMS.filter(function (x) { return !t[x.n]; });
+  }
+
+  function rosterOf(idx) {
+    var out = [state.owners[idx].keeper];
+    state.picks.forEach(function (p) { if (p.ownerIdx === idx) out.push(p.team); });
+    return out;
+  }
+
+  function projected(idx) {
+    return rosterOf(idx).reduce(function (s, n) {
+      var t = team(n); return s + (t ? t.ou : 0);
+    }, 0);
+  }
+
+  function pickTeam(name) {
+    if (state.picks.length >= DRAFT_ROUNDS * 4) return;
+    if (taken()[name]) return;
+    justPicked = state.picks.length;
+    state.picks.push({ team: name, ownerIdx: ownerForPick(state.picks.length) });
+    if (state.picks.length === DRAFT_ROUNDS * 4) state.phase = "done";
+    state.query = "";
+    save(); render();
+  }
+
+  function undo() {
+    if (!state.picks.length) return;
+    var p = state.picks.pop();
+    state.phase = "draft";
+    justPicked = -1;
+    save(); render();
+    toast(p.team + " put back");
+  }
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { toastEl.classList.remove("show"); }, 1700);
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c];
+    });
+  }
+
+  // ---------- published rules ----------
+
+  /** Finds the first adjacent pair in the order that shared a posted line. */
+  function tiebreakPair(order) {
+    for (var i = 1; i < order.length; i++) {
+      var a = team(order[i - 1].keeper), b = team(order[i].keeper);
+      if (a && b && a.ou === b.ou) {
+        return { aOwner: order[i - 1], aTeam: a, bOwner: order[i], bTeam: b };
+      }
+    }
+    return null;
+  }
+
+  function rulesMarkup(order) {
+    var tie = tiebreakPair(order);
+    var tied = {};
+    if (tie) { tied[tie.aOwner.name] = true; tied[tie.bOwner.name] = true; }
+
+    var list = order.map(function (e, i) {
+      var t = team(e.keeper);
+      return '<div class="op-row' + (tied[e.name] ? " tied" : "") +
+               '" style="--c:' + COLORS[i] + '">' +
+               '<span class="pos">' + (i + 1) + '</span>' +
+               '<span class="who">' + esc(e.name) +
+                 '<small>' + esc(e.keeper) + '</small></span>' +
+               '<span class="why">' + t.ou.toFixed(1) +
+                 '<small>over ' + priceLabel(t.over) + ' \u00b7 ' + pct(t.over) + '</small></span>' +
+             '</div>';
+    }).join("");
+
+    var prose =
+      '<p><b>Keepers are free.</b> Everyone starts with the team they root for, ' +
+        'and it doesn\u2019t cost a pick. Seven full rounds get drafted on top of it, ' +
+        'so everyone still ends up with eight teams.</p>' +
+      '<p><b>Weakest keeper picks first.</b> Draft order runs by each keeper\u2019s ' +
+        'preseason win total, lowest first. ' + esc(order[0].name) + '\u2019s ' +
+        esc(order[0].keeper) + ' at ' + team(order[0].keeper).ou.toFixed(1) +
+        ' is the thinnest gift, so ' + esc(order[0].name) + ' opens the draft.</p>';
+
+    if (tie) {
+      prose +=
+        '<p><b>The price breaks a tie.</b> The ' + esc(tie.aTeam.n) + ' and the ' +
+          esc(tie.bTeam.n) + ' are both posted at ' + tie.aTeam.ou.toFixed(1) +
+          ', but the market doesn\u2019t rate them the same. ' + esc(tie.aTeam.n) +
+          '\u2019s over is ' + priceLabel(tie.aTeam.over) + ' and ' + esc(tie.bTeam.n) +
+          '\u2019s is ' + priceLabel(tie.bTeam.over) + ' \u2014 about ' + pct(tie.aTeam.over) +
+          ' against ' + pct(tie.bTeam.over) + '. The book rates ' + esc(tie.aTeam.n) +
+          ' the weaker of the two, so ' + esc(tie.aOwner.name) + ' picks ahead of ' +
+          esc(tie.bOwner.name) + '. Same rule as the line, resolved one decimal deeper.</p>';
+    }
+
+    prose +=
+      '<p><b>Then it snakes.</b> Seven rounds, reversing every round. ' +
+        esc(order[0].name) + ' picks first and eighth; ' +
+        esc(order[3].name) + ' picks fourth and fifth.</p>';
+
+    return '<div class="rules">' +
+             '<div><h3>Draft order</h3>' + list + '</div>' +
+             '<div class="rules-prose"><h3>How it was set</h3>' + prose + '</div>' +
+           '</div>';
+  }
+
+  // ---------- setup view ----------
+
+  function renderSetup() {
+    metaEl.textContent = "";
+
+    var opts = TEAMS.slice().sort(function (a, b) { return a.n < b.n ? -1 : 1; });
+    var rows = state.entries.map(function (e, i) {
+      var sel = opts.map(function (t) {
+        return '<option value="' + esc(t.n) + '"' + (t.n === e.keeper ? " selected" : "") + '>' +
+               esc(t.n) + ' \u2014 ' + t.ou.toFixed(1) + '</option>';
+      }).join("");
+      return '<div class="keeper-row">' +
+               '<input data-name="' + i + '" value="' + esc(e.name) + '" aria-label="Owner name">' +
+               '<select data-keeper="' + i + '" aria-label="Keeper team">' + sel + '</select>' +
+             '</div>';
+    }).join("");
+
+    var dupes = {};
+    state.entries.forEach(function (e) { dupes[e.keeper] = (dupes[e.keeper] || 0) + 1; });
+    var clash = Object.keys(dupes).filter(function (k) { return dupes[k] > 1; });
+
+    app.innerHTML =
+      '<div class="setup">' +
+        '<h2>Owners and keepers</h2>' +
+        '<p class="lede">Everyone keeps the team they root for. The order below is ' +
+          'computed from those keepers, and updates as you change them.</p>' +
+        rows +
+        (clash.length
+          ? '<div class="warn">Two owners are keeping the ' + esc(clash[0]) + '. Pick different teams.</div>'
+          : rulesMarkup(computeOrder(state.entries))) +
+        '<div style="margin-top:30px">' +
+          '<button class="btn" id="start"' + (clash.length ? " disabled" : "") + '>Start the draft</button>' +
+        '</div>' +
+      '</div>';
+
+    app.querySelectorAll("input[data-name]").forEach(function (el) {
+      el.addEventListener("input", function () { state.entries[+el.dataset.name].name = el.value; });
+    });
+    app.querySelectorAll("select[data-keeper]").forEach(function (el) {
+      el.addEventListener("change", function () {
+        state.entries[+el.dataset.keeper].keeper = el.value;
+        render();
+      });
+    });
+
+    document.getElementById("start").addEventListener("click", function () {
+      state.entries.forEach(function (e, i) {
+        e.name = (e.name || "").trim() || ("Owner " + (i + 1));
+      });
+      state.owners = computeOrder(state.entries).map(function (e) {
+        return { name: e.name, keeper: e.keeper };
+      });
+      state.phase = "draft";
+      save(); render();
+    });
+  }
+
+  // ---------- pool ----------
+
+  function poolMarkup() {
+    var pool = available();
+    var q = state.query.trim().toLowerCase();
+    if (q) {
+      pool = pool.filter(function (t) {
+        return t.n.toLowerCase().indexOf(q) !== -1 || t.d.toLowerCase().indexOf(q) !== -1;
+      });
+    }
+    if (!pool.length) {
+      return '<div class="empty-pool">' +
+        (q ? "No team matches \u201c" + esc(state.query) + "\u201d." : "Every team is taken.") +
+        '</div>';
+    }
+
+    function plate(t, first) {
+      return '<button class="plate' + (first && q ? " is-target" : "") + '" data-team="' + esc(t.n) + '">' +
+               '<span class="ou">' + t.ou.toFixed(1) + '</span>' +
+               '<span><span class="name">' + esc(t.n) + '</span><br>' +
+                 '<span class="div">' + t.d + '</span></span>' +
+               '<span class="last">' + t.last + '-' + (17 - t.last) + ' in 2025</span>' +
+             '</button>';
+    }
+
+    if (state.sort === "div") {
+      var out = "";
+      DIV_ORDER.forEach(function (d) {
+        var g = pool.filter(function (t) { return t.d === d; });
+        if (!g.length) return;
+        g.sort(function (a, b) { return b.ou - a.ou; });
+        out += '<div class="group-label">' + d + '</div>' +
+               g.map(function (t) { return plate(t, false); }).join("");
+      });
+      return out;
+    }
+    pool.sort(function (a, b) { return b.ou - a.ou || b.last - a.last; });
+    return pool.map(function (t, i) { return plate(t, i === 0); }).join("");
+  }
+
+  // ---------- board ----------
+
+  function boardMarkup() {
+    var onClock = state.picks.length;
+    var html = '<div class="board"><div></div>';
+
+    state.owners.forEach(function (o, i) {
+      html += '<div class="col-head" style="--head:' + COLORS[i] + '">' +
+                '<div class="who">' + esc(o.name) + '</div>' +
+                '<div class="proj">' + rosterOf(i).length + ' teams \u00b7 ' +
+                  projected(i).toFixed(1) + ' proj wins</div>' +
+              '</div>';
+    });
+
+    html += '<div class="rnd">Keep</div>';
+    state.owners.forEach(function (o, i) {
+      var t = team(o.keeper);
+      html += '<div class="slot keeper" style="--c:' + COLORS[i] + '">' +
+                '<span class="t">' + esc(o.keeper) + '</span>' +
+                '<span class="n">keeper \u00b7 ' + (t ? t.ou.toFixed(1) : "") + '</span>' +
+              '</div>';
+    });
+
+    for (var r = 0; r < DRAFT_ROUNDS; r++) {
+      html += '<div class="rnd">' + (r + 1) + '</div>';
+      for (var col = 0; col < 4; col++) {
+        var idx = -1;
+        for (var k = r * 4; k < r * 4 + 4; k++) {
+          if (ownerForPick(k) === col) { idx = k; break; }
+        }
+        var p = state.picks[idx];
+        if (p) {
+          var t2 = team(p.team);
+          html += '<div class="slot filled' + (idx === justPicked ? " land" : "") +
+                    '" style="--c:' + COLORS[col] + '">' +
+                    '<span class="t">' + esc(p.team) + '</span>' +
+                    '<span class="n">#' + (idx + 1) + ' \u00b7 ' + (t2 ? t2.ou.toFixed(1) : "") + '</span>' +
+                  '</div>';
+        } else {
+          html += '<div class="slot' + (idx === onClock ? " oncl" : "") + '">' +
+                    (idx === onClock ? '<span class="n">on the clock</span>' : "") +
+                  '</div>';
+        }
+      }
+    }
+    return html + '</div>';
+  }
+
+  // ---------- export ----------
+
+  function exportText() {
+    var lines = ["Team,Owner,OU,Pick,Round"];
+    var keeperOf = {};
+    state.owners.forEach(function (o) { keeperOf[o.keeper] = o.name; });
+
+    TEAMS.slice().sort(function (a, b) { return a.n < b.n ? -1 : 1; }).forEach(function (t) {
+      if (keeperOf[t.n]) {
+        lines.push([t.n, keeperOf[t.n], t.ou, "K", "Keeper"].join(","));
+        return;
+      }
+      var i = state.picks.findIndex(function (p) { return p.team === t.n; });
+      var p = state.picks[i];
+      lines.push([
+        t.n,
+        p ? state.owners[p.ownerIdx].name : "",
+        t.ou,
+        p ? (i + 1) : "",
+        p ? (Math.floor(i / 4) + 1) : ""
+      ].join(","));
+    });
+    return lines.join("\n");
+  }
+
+  // ---------- draft view ----------
+
+  function renderDraft() {
+    var n = state.picks.length;
+    var total = DRAFT_ROUNDS * 4;
+    var done = state.phase === "done";
+    var oIdx = done ? 0 : ownerForPick(n);
+    var round = done ? DRAFT_ROUNDS : Math.floor(n / 4) + 1;
+
+    metaEl.textContent = done ? "Complete \u00b7 32 teams assigned"
+                              : "Pick " + (n + 1) + " of " + total;
+
+    var head;
+    if (done) {
+      head =
+        '<div class="done">' +
+          '<h2>Draft complete</h2>' +
+          '<p>Copy the rows below into the Draft tab of the tracker sheet, over A2:E33. ' +
+             'Keepers are included and marked. That is the only data anyone enters all season.</p>' +
+          '<textarea class="export" id="exp" readonly>' + esc(exportText()) + '</textarea>' +
+          '<div class="row-btns">' +
+            '<button class="btn" id="copy">Copy to clipboard</button>' +
+            '<button class="btn-ghost" id="dl">Download CSV</button>' +
+            '<button class="btn-ghost" id="undo">Undo last pick</button>' +
+          '</div>' +
+        '</div>';
+    } else {
+      var nextIdx = (n + 1 < total) ? ownerForPick(n + 1) : null;
+      head =
+        '<div class="clock" style="--pick:' + COLORS[oIdx] + '">' +
+          '<div>' +
+            '<div class="clock-label">On the clock</div>' +
+            '<div class="clock-name">' + esc(state.owners[oIdx].name) + '</div>' +
+          '</div>' +
+          '<div class="clock-where">' +
+            '<div class="big">Round ' + round + '</div>' +
+            '<div class="sub">Pick ' + (n + 1) + ' of ' + total + '</div>' +
+            (nextIdx !== null
+              ? '<div class="snake-note">Then ' + esc(state.owners[nextIdx].name) + '</div>'
+              : '<div class="snake-note">Last pick of the draft</div>') +
+          '</div>' +
+        '</div>';
+    }
+
+    app.innerHTML =
+      head +
+      '<div class="cols">' +
+        '<section>' +
+          '<div class="panel-head"><h2>Available</h2>' +
+            '<span class="count">' + available().length + ' left</span></div>' +
+          (done ? "" :
+            '<div class="toolbar">' +
+              '<input class="search" id="q" placeholder="Type a team, then press Enter" ' +
+                'value="' + esc(state.query) + '" autocomplete="off">' +
+              '<div class="seg">' +
+                '<button id="sortOu" aria-pressed="' + (state.sort === "ou") + '">Odds</button>' +
+                '<button id="sortDiv" aria-pressed="' + (state.sort === "div") + '">Division</button>' +
+              '</div>' +
+            '</div>') +
+          poolMarkup() +
+        '</section>' +
+        '<section>' +
+          '<div class="panel-head"><h2>Board</h2>' +
+            (done ? '<span class="count"></span>' :
+              '<button class="btn-ghost" id="undo2"' + (n ? "" : " disabled") + '>Undo last pick</button>') +
+          '</div>' +
+          boardMarkup() +
+        '</section>' +
+      '</div>' +
+      rulesMarkup(state.owners);
+
+    justPicked = -1;
+
+    app.querySelectorAll(".plate").forEach(function (el) {
+      el.addEventListener("click", function () { pickTeam(el.dataset.team); });
+    });
+
+    ["undo", "undo2"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener("click", undo);
+    });
+
+    var so = document.getElementById("sortOu");
+    var sd = document.getElementById("sortDiv");
+    if (so) so.addEventListener("click", function () { state.sort = "ou"; render(); });
+    if (sd) sd.addEventListener("click", function () { state.sort = "div"; render(); });
+
+    var q = document.getElementById("q");
+    if (q) {
+      q.focus();
+      q.setSelectionRange(q.value.length, q.value.length);
+      q.addEventListener("input", function () {
+        state.query = q.value;
+        var pane = app.querySelector(".cols > section");
+        pane.querySelectorAll(".plate, .group-label, .empty-pool").forEach(function (el) { el.remove(); });
+        var frag = document.createElement("div");
+        frag.innerHTML = poolMarkup();
+        while (frag.firstChild) pane.appendChild(frag.firstChild);
+        pane.querySelectorAll(".plate").forEach(function (el) {
+          el.addEventListener("click", function () { pickTeam(el.dataset.team); });
+        });
+      });
+      q.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          var first = app.querySelector(".plate");
+          if (first) pickTeam(first.dataset.team);
+        } else if (e.key === "Escape") { state.query = ""; render(); }
+      });
+    }
+
+    var copy = document.getElementById("copy");
+    if (copy) copy.addEventListener("click", function () {
+      var ta = document.getElementById("exp");
+      ta.select();
+      try { document.execCommand("copy"); toast("Copied 32 rows"); }
+      catch (e) { toast("Select the text and copy manually"); }
+    });
+
+    var dl = document.getElementById("dl");
+    if (dl) dl.addEventListener("click", function () {
+      var blob = new Blob([exportText()], { type: "text/csv" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "nfl-draft-2026.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  }
+
+  function render() {
+    if (state.phase === "setup") renderSetup(); else renderDraft();
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "z" && state.phase !== "setup") {
+      e.preventDefault(); undo();
+    }
+  });
+
+  restore();
+})();
+</script>
